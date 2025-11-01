@@ -61,7 +61,10 @@ class KeywordQueryEventListener(EventListener):
                 session_path = session.get("Path", "No path available")
 
                 # This command will be executed when the user presses Enter
-                connect_command = f'kitty -e sesh connect "{session_name}"'
+                kitty_path = subprocess.run(
+                    ["which", "kitty"], capture_output=True, text=True
+                ).stdout.strip()
+                connect_command = f'/home/bignixy/.nix-profile/bin/kitty -e sesh connect "{session_name}"'
 
                 items.append(
                     ExtensionResultItem(
