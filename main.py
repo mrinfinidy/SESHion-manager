@@ -25,25 +25,30 @@ class SeshExtension(Extension):
 class KeywordQueryEventListener(EventListener):
     """Handles the user's input when they type the keyword"""
 
+    def find_tmux_con_id(self, node):
+        if node.get("type") == "con" and node.get("name") == "tmux":
+            return node["id"]
+        for key in ("nodes", "floating_nodes"):
+            for child in node.get(key, []):
+                result = self.find_tmux_con_id(child)
+                if result:
+                    return result
+        return None
+
     def get_connect_command(self, session_name):
         try:
-            kitty_ls = subprocess.run(
-                [
-                    "kitty",
-                    "@",
-                    "ls",
-                ],
-                capture_output=True,
-                text=True,
+            sway_tree = json.loads(
+                subprocess.run(
+                    ["swaymsg", "-t", "get_tree"], capture_output=True, text=True
+                ).stdout
             )
 
-            found_tmux_session = ('"tmux"' in kitty_ls.stdout) and (
-                f'"{session_name}"' in kitty_ls.stdout
-            )
-            if not found_tmux_session:
-                return f'kitty -e sesh connect "{session_name}"'
+            tmux_con_id = self.find_tmux_con_id(sway_tree)
 
-            return f'kitty @ focus-window --match cmdline:"{session_name}"'
+            if tmux_con_id:
+                return f'swaymsg "[con_id={tmux_con_id}] focus"'
+            return ""
+
         except subprocess.CalledProcessError as e:
             print(f"Error interacting with Kitty: {e.stderr}")
 
