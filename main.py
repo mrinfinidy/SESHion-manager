@@ -25,12 +25,12 @@ class SeshExtension(Extension):
 class KeywordQueryEventListener(EventListener):
     """Handles the user's input when they type the keyword"""
 
-    def find_tmux_con_id(self, node):
-        if node.get("type") == "con" and node.get("name") == "tmux":
+    def find_tmux_con_id(self, node, session_name):
+        if node.get("type") == "con" and node.get("name") == session_name:
             return node["id"]
         for key in ("nodes", "floating_nodes"):
             for child in node.get(key, []):
-                result = self.find_tmux_con_id(child)
+                result = self.find_tmux_con_id(child, session_name)
                 if result:
                     return result
         return None
@@ -43,7 +43,7 @@ class KeywordQueryEventListener(EventListener):
                 ).stdout
             )
 
-            tmux_con_id = self.find_tmux_con_id(sway_tree)
+            tmux_con_id = self.find_tmux_con_id(sway_tree, session_name)
 
             if tmux_con_id:
                 return f'swaymsg "[con_id={tmux_con_id}] focus"'
