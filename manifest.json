@@ -14,6 +14,13 @@
       "name": "sesh",
       "description": "Keyword to list and connect to sesh sessions",
       "default_value": "sesh"
+    },
+    {
+      "id": "terminal",
+      "type": "input",
+      "name": "Terminal binary",
+      "description": "Binary name of your terminal emulator. E.g. kitty, alacritty or wezterm",
+      "default_value": "kitty"
     }
   ]
 }
